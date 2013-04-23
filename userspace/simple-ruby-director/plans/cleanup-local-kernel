@@ -1,0 +1,9 @@
+# Specifies how many nodes will participate in the measurements. There must be enough nodes in a cluster
+Nodes count: 
+  1
+
+Tasks:
+  cleankernel: exec "make clean" /mnt/ext/linux-2.6.32.5
+
+Nodes: 
+  LocalNode: cleankernel

@@ -1,0 +1,59 @@
+Jak rozchodit Clondike ve VirtualBoxu v operacnim systemu linux
+
+1. Nainstalovat a zprovoznit VirtualBox http://wiki.ubuntu.cz/virtualizace/virtualbox, http://www.virtualbox.org/manual/ch02.html#idp16362384.
+
+2. Stáhnout Clondike z url bi-ios.fit.cvut.cz/clondike3.zip.
+
+3. Rozbalit tento archiv do složky (například /tmp/clondike/) 
+
+4. Do svého operačního systému přidat příslušné moduly pomocí příkazů:
+"modprobe vboxdrv"
+"modprobe vboxnetflt"
+
+5. Spustit VirtualBox (buď příkazem virtualbox nebo v Apliakce -> Systémové nástroje -> Sun VirtualBox)
+
+6. Vytvořit nový virtuální počítač. Zobrazí se úvodní stránka -> Další.
+
+7. Jako parametry zadat:
+název: Clondike Node 1
+typ: Linux
+verze: Gentoo (64bit)
+
+a stisknout Další.
+
+7. Velikost operační paměti je doporučeno nastavit alespoň na 384MB (stačí). Další.
+
+8. Bootovací pevný disk: použít z rozbaleného archivu Virtual Disk 4.vmdk (/tmp/clondike/prdel3/Virtual Disk 4.vmdk). Další.
+
+9. Vytvořit nový virtuální počítač. Dokončit. (To by měl být konec průvodce.)
+
+10. Ve VirtualBoxu -> Clondike Node 1 -> Nastavení -> Síť -> Karta 1: Připojena k: Síťový most -> OK.
+Nyní si virtuální počítače načtou dynamicky svoje IP adresy a ostatní údaje, proto je nutné být připojen k DHCP serveru.
+(Kdybychom nechali v nastavení hodnotu NAT, všechny běžící počítače by si načetly identickou IP adresu a nebyly by vzájemně viditelné. Samozřejmě by to šlo řešit různým nastavením, DHCP je jednodušší).
+
+11. Spustit Clondike Node 1 (Spustit nebo příkazem virtualbox -startvm "Clondike Node 1")
+
+12. Po uplnem nabehnuti systemu se prihlasit jako uzivatel "root", heslo "tvrdik".
+
+13. Smazat nektere soubory pomoci prikazu:
+"rm /etc/udev/rules.d/70-persistent-net.rules"
+
+14. Vypnout system prikazem "poweroff"
+
+15. Naklonovat virtualni stroj.
+V levém panelu označit Clondike Node 1 -> Snapshots (vpravo nahoře) -> ikona bílé ovečky (klonovat).
+Spustí se průvodce:
+Jméno nového virtuálního stroje například Clondike Node 2 -> zaškrtnout "reinicializovat MAC adresy všech síťových karet"  -> Další.
+Zvolíme možnost "Propojený klon" -> Clone.
+
+16. Spustit postupně oba počítače a provést (na obou zvlášť):
+smazat všechny soubory v adresáři /root/clondike/userspace/simple-ruby-director/conf/ ("rm /root/clondike/userspace/simple-ruby-director/conf/*")
+spustit znovu director pro vygenerovani noveho unikatniho certifikatu ("cd /root/clondike/scripts", "./restart-director.sh")
+nyní pokud máte spuštěné oba stroje, měl by se vedle adresy změnit počet spojených uzlů (z 0/0 na 1/1)
+příkazem "EMIG=1" se donuti kazda uloha (pro tuto konfiguraci gcc preklady) migrovat na jiny uzel
+
+17. Test funkčnosti. Na jednom stroji spustit kompilaci pomoci gcc tedy například "cd /usr/src/test" a "gcc loop.c"
+
+18. V director logu (/tmp/director.log) by se mělo objevit, že úloha migrovala na jiný uzel.
+
+19. V director (/tmp/director.log) by se mělo objevit, že úloha byla přijata.

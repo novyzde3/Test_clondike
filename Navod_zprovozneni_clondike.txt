@@ -1,0 +1,105 @@
+Preklad jadra
+Instalace nastroju pro kompilaci jadra: apt-get install ncurses-dev gcc make initramfs-tools
+
+Pokud neni git: instalace apt-get install git
+
+Stazeni clondike patche: git clone https://github.com/FIT-CVUT/Clondike.git
+
+Stazeni prislusneho jadra: wget www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.33.1.tar.gz
+
+Rozbaleni jadra: tar -xvzf linux-2.6.33.1.tar.gz
+
+Otevreni adresare s jadrem: cd linux-2.6.33.1
+
+Provedeni patche: patch -p1 < ../clondike/patch/clondike-33.1.patch
+
+make menuconfig Clondike > Enable TCMI 
+                           Enable TCMI CCN 
+                           Enable TCMI PEN 
+                Networking support > Network options > Disable Appletalk protocol support
+                                   > Plan 9 Resource Sharing Support
+                Filesystems > Network File Systems > Plan 9 Resource Sharing Support
+Mezernikem menite konfiguraci v menu, po dokonceni konfigurace jadra ulozte do .conf pomoci Save an Alternate Configuration File, pak jen Exit
+
+
+cp -R ../clondike/src/ clondike/kernel_xxx/
+
+make clean && make -j4 && make modules && make modules_install && make install
+
+Mozne komplikace pri kompilaci:
+Pridat prava pro spusteni skriptu clondike/scripts/proxyfs_ioctl_sort.pl
+Je lepsi prekopirovat celou slozku linux-2.6.33.1 do /usr/src
+
+mkinitramfs -o /boot/initrd-2.6.33.1 2.6.33.1
+
+Priprava ke spusteni
+pomoci skriptu create_folder_structure.sh
+vytvorte adresarovou strukturu pro Clondike
+
+append to grub (/etc/default/grub do CMD_LINE): proxyfs.server=tcp:0.0.0.0:1112
+
+update-grub nebo update-grub2
+
+Po naklonovani je treba odstranit obsah adresare rm /root/clondike/userspace/simple-ruby-director/conf  
+
+a nasledný restart Director
+
+Rozbehnuti Ruby skriptu:
+
+Instalace ruby: apt-get install ruby ruby-dev ntpdate libnl1 libnl-dev
+
+spustit make v nasledujicich adresarich
+cd /root/clondike/userspace/director-api
+make clean
+make
+
+cd /root/clondike/userspace/ruby-director-api
+make clean
+make
+make install
+
+Pridat zaznamy do /etc/fstab
+
+none    /dev/shm  tmpfs   defaults    0 0
+none    /clondike tcmi_ctlfs  defaults  0 0
+
+Namountovat filesystemy:
+mount -a
+
+Přidání záznamu do grubu: /etc/default/grub
+do sekce GRUB_CMDLINE_LINUX="proxyfs.server=tcp:0.0.0.0:1112"
+
+Konfigurace Bashe:
+prepiste soubor /etc/bash.bashrc
+nastavuje bash prompt
+# cp /root/clondike/etc/bash.bashrc /etc/
+
+Konfiguracni soubor migrace:
+/root/.migration.conf
+# cp /root/clondike/root/.migration.conf /root/
+
+NPFS ve složce /root/npfs_install
+zkompilovat a spoustec npfs ze slozky /root/npfs_install/fs
+nakopirovat do /root/npfs
+a spustit script /root/npfs/npfs-start &
+prekopirovat init script pro npfs /etc/init.d/npfsd
+                         pro clondike /etc/init.d/rc.local 
+do stejneho umisteni
+# mkdir /root/npfs
+# /root/clondike/root/npfs_install/fs/npfs /root/npfs/
+# /root/clondike/root/npfs/npfs-start /root/npfs/
+# chmod +x /root/npfs/npfs-start
+# /root/npfs/npfs-start &
+# cp /root/clondike/etc/init.d/npfsd /etc/init.d/
+# cp /root/clondike/etc/init.d/rc.local /etc/init.d/
+
+Zaregistrovat skript pro npfsd do initu pomoci
+update-rc.d [-n] npfsd defaults // -n neni potreba naopak dela chybu
+# update-rc.d npfsd defaults
+
+Spustit skript /root/clondike/scripts/install.sh
+
+Spusteni Clondike manualne jinak je v rc.local dle navodu udelan start po nabehnuti systemu:
+/root/clondike/scripts/clondike-init
+
+Restart Clondike /root/clondike/script/restart-director.sh
