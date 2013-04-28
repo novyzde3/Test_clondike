@@ -1,0 +1,33 @@
+DEFAULT vesamenu.c32
+PROMPT 0
+MENU title Clondike PXE boot
+TIMEOUT 500
+
+MENU WIDTH 80
+MENU MARGIN 10
+MENU ROWS 12
+MENU TABMSGROW 18
+MENU CMDLINEROW 12
+MENU ENDROW 24
+MENU TIMEOUTROW 20
+ONTIMEOUT localhost
+
+LABEL localhost
+ LOCALBOOT 0
+
+#LABEL test
+# MENU label TEST
+# MENU default
+# KERNEL clondike-2.6.33.1-nfs/clondike-vmlinuz-2.6.33.1
+# INITRD clondike-2.6.33.1-nfs/clondike-initrd.img-2.6.33.1
+# APPEND root=/dev/nfs nfsroot=192.168.113.244:/mnt/disc-clondike/ ip=dhcp rw selinux=0
+
+LABEL clondike
+ MENU label Clondike
+ MENU default
+ KERNEL clondike-2.6.33.1-nfs-final/clondike-vmlinuz-2.6.33.1-nfs-final
+ INITRD clondike-2.6.33.1-nfs-final/clondike-initrd.img-2.6.33.1-nfs-final
+ APPEND root=/dev/nfs nfsroot=192.168.113.174:/mnt/pxe/clondike/ ip=dhcp selinux=0 proxyfs.server=tcp:0.0.0.0:1112
+
+
+
