@@ -1,0 +1,23 @@
+/dev/nfs	/	nfs		_netdev,rsize=32768,wsize=32768,hard,noatime,udp,noock,nfsvers=4,auto,ro,async	0	0
+proc	/proc		proc		defaults	0	0
+
+none	/dev/shm	tmpfs		defaults	0	0
+none	/clondike	tcmi_ctlfs	defaults	0	0
+
+none	/tmpfs/run	tmpfs		defaults	0	0
+none	/tmpfs/lock	tmpfs		defaults	0	0
+none	/tmpfs/log	tmpfs		defaults	0	0
+none	/tmpfs/tmp	tmpfs		defaults	0	0
+none	/tmpfs/clondike-conf	tmpfs	defaults	0	0
+none	/tmpfs/network-run	tmpfs	defaults	0	0
+none	/tmpfs/rules.d	tmpfs		defaults	0	0
+none	/var/lib	tmpfs		defaults	0	0
+
+# none	/mnt/proxy	tmpfs		defaults	0	0
+none	/mnt/clondike	tmpfs		defaults	0	0
+none	/mnt/local	tmpfs		defaults	0	0
+none	/mnt/flash	tmpfs		defaults	0	0
+
+none	/root/workplace	tmpfs		defaults	0	0
+none	/home/clondike	tmpfs		defaults	0	0
+
